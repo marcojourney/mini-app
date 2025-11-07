@@ -1,31 +1,101 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, X, Plus, Minus, UtensilsCrossed, Beer, Coffee, Cake, Settings, Languages, Monitor, Bell, CheckCircle, Clock, ChefHat } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import {
+  Search,
+  ShoppingCart,
+  X,
+  Plus,
+  Minus,
+  UtensilsCrossed,
+  Beer,
+  Coffee,
+  Cake,
+  Settings,
+  Languages,
+  Monitor,
+  Bell,
+  CheckCircle,
+  Clock,
+  ChefHat
+} from 'lucide-react';
 
-const SmartMenu = () => {
-  const [cart, setCart] = useState([]);
+// --- Types ---
+type Language = 'en' | 'km';
+type Category = 'All' | 'Food' | 'Drinks' | 'Desserts';
+type ViewMode = 'customer' | 'staff';
+type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed';
+type ThemeColor = 'orange' | 'blue' | 'green' | 'purple' | 'red';
+
+interface MenuItem {
+  id: number;
+  name: Record<Language, string>;
+  category: Exclude<Category, 'All'>;
+  price: number;
+  image: string;
+  description: Record<Language, string>;
+}
+
+interface CartItem extends MenuItem {
+  quantity: number;
+}
+
+interface Order {
+  id: number;
+  tableNumber: string;
+  items: CartItem[];
+  total: number;
+  status: OrderStatus;
+  time: string;
+}
+
+interface Config {
+  shopName: string;
+  shopTagline: string;
+  shopType: string;
+  logoUrl: string;
+  primaryColor: ThemeColor;
+  serviceFee: number;
+}
+
+interface ThemeStyle {
+  gradient: string;
+  bg: string;
+  button: string;
+  buttonHover: string;
+  text: string;
+  bgLight: string;
+  bgMedium: string;
+  textLight: string;
+}
+
+const SmartMenu: React.FC = () => {
+  // --- States ---
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [showCart, setShowCart] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [language, setLanguage] = useState('en');
-  const [viewMode, setViewMode] = useState('customer'); // 'customer' or 'staff'
-  const [orders, setOrders] = useState([]);
+  const [language, setLanguage] = useState<Language>('en');
+  const [viewMode, setViewMode] = useState<ViewMode>('customer');
+  const [orders, setOrders] = useState<Order[]>([]);
   const [notifications, setNotifications] = useState(0);
-  
-  // Customizable Settings
-  const [config, setConfig] = useState({
+
+  const [config, setConfig] = useState<Config>({
     shopName: 'Tasty Bites',
     shopTagline: 'Food & Pub Restaurant',
     shopType: 'restaurant',
-    logoUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop',
+    logoUrl:
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop',
     primaryColor: 'orange',
-    serviceFee: 2.00
+    serviceFee: 2.0
   });
 
-  // Translations
-  const translations = {
+  // --- Translations ---
+  const translations: Record<
+    Language,
+    Record<string, any> // keep flexible nested structure
+  > = {
     en: {
       search: 'Search menu...',
       cart: 'Cart',
@@ -55,7 +125,6 @@ const SmartMenu = () => {
         desserts: 'Desserts'
       },
       noItems: 'No items found',
-      // Staff screen
       staffView: 'Staff View',
       customerView: 'Customer View',
       orderReceived: 'Order Received',
@@ -103,7 +172,6 @@ const SmartMenu = () => {
         desserts: 'បង្អែម'
       },
       noItems: 'រកមិនឃើញ',
-      // Staff screen
       staffView: 'អេក្រង់បុគ្គលិក',
       customerView: 'អេក្រង់អតិថិជន',
       orderReceived: 'បានទទួលការបញ្ជាទិញ',
@@ -126,161 +194,8 @@ const SmartMenu = () => {
 
   const t = translations[language];
 
-  const menuItems = [
-    { 
-      id: 1, 
-      name: { en: 'Classic Burger', km: 'ប័រហ្គឺរបុរាណ' },
-      category: 'Food', 
-      price: 8.99, 
-      image: '🍔', 
-      description: { en: 'Beef patty with cheese, lettuce, tomato', km: 'សាច់គោជាមួយឈីស សាលាដ និងប៉េងប៉ោះ' }
-    },
-    { 
-      id: 2, 
-      name: { en: 'Margherita Pizza', km: 'ព៊ីហ្សា ម៉ាហ្គារីតា' },
-      category: 'Food', 
-      price: 12.99, 
-      image: '🍕', 
-      description: { en: 'Fresh mozzarella, basil, tomato sauce', km: 'ឈីសម៉ូហ្សារ៉ែឡា ស្លឹកបាស៊ីលីក និងទឹកប៉េងប៉ោះ' }
-    },
-    { 
-      id: 3, 
-      name: { en: 'Caesar Salad', km: 'សាឡាត់ ស៊ីហ្សា' },
-      category: 'Food', 
-      price: 7.99, 
-      image: '🥗', 
-      description: { en: 'Romaine lettuce, parmesan, croutons', km: 'សាលាដរ៉ូម៉ាំងជាមួយឈីសនិងនំប័ង' }
-    },
-    { 
-      id: 4, 
-      name: { en: 'Fish & Chips', km: 'ត្រីចៀន និងដំឡូងចៀន' },
-      category: 'Food', 
-      price: 14.99, 
-      image: '🐟', 
-      description: { en: 'Crispy battered fish with fries', km: 'ត្រីចៀនកោរជាមួយដំឡូងចៀន' }
-    },
-    { 
-      id: 5, 
-      name: { en: 'BBQ Ribs', km: 'ជំនីចង្កា បាបេគ្យូ' },
-      category: 'Food', 
-      price: 16.99, 
-      image: '🍖', 
-      description: { en: 'Slow-cooked ribs with BBQ sauce', km: 'ជំនីចង្កាអាំងជាមួយទឹកជ្រលក់បាបេគ្យូ' }
-    },
-    { 
-      id: 6, 
-      name: { en: 'Chicken Wings', km: 'ស្លាបមាន់ចៀន' },
-      category: 'Food', 
-      price: 9.99, 
-      image: '🍗', 
-      description: { en: '8 wings with choice of sauce', km: 'ស្លាបមាន់ចៀន ៨ ជាមួយទឹកជ្រលក់' }
-    },
-    { 
-      id: 7, 
-      name: { en: 'Pasta Carbonara', km: 'ប៉ាស្តាកាបូណារ៉ា' },
-      category: 'Food', 
-      price: 11.99, 
-      image: '🍝', 
-      description: { en: 'Creamy pasta with bacon', km: 'ប៉ាស្តាក្រែមជាមួយសាច់ជ្រូក' }
-    },
-    { 
-      id: 8, 
-      name: { en: 'Steak', km: 'ស្ទិក' },
-      category: 'Food', 
-      price: 22.99, 
-      image: '🥩', 
-      description: { en: 'Grilled ribeye steak', km: 'សាច់គោអាំង' }
-    },
-    { 
-      id: 9, 
-      name: { en: 'Draft Beer', km: 'ស្រាបៀរស្រស់' },
-      category: 'Drinks', 
-      price: 5.99, 
-      image: '🍺', 
-      description: { en: 'Local craft beer on tap', km: 'ស្រាបៀរក្នុងស្រុក' }
-    },
-    { 
-      id: 10, 
-      name: { en: 'House Wine', km: 'ស្រាវ៉ាំង' },
-      category: 'Drinks', 
-      price: 7.99, 
-      image: '🍷', 
-      description: { en: 'Red or white wine', km: 'ស្រាវ៉ាំងក្រហម ឬស' }
-    },
-    { 
-      id: 11, 
-      name: { en: 'Mojito', km: 'ម៉ូជីតូ' },
-      category: 'Drinks', 
-      price: 8.99, 
-      image: '🍹', 
-      description: { en: 'Rum, mint, lime, soda', km: 'រ៉ូម ស្លឹកគ្រឿងស្អុយ ក្រូចឆ្មារ និងសូដា' }
-    },
-    { 
-      id: 12, 
-      name: { en: 'Soft Drink', km: 'ភេសជ្ជៈ' },
-      category: 'Drinks', 
-      price: 2.99, 
-      image: '🥤', 
-      description: { en: 'Cola, Sprite, or Fanta', km: 'កូឡា ស្ព្រាយ ឬហ្វេនតា' }
-    },
-    { 
-      id: 13, 
-      name: { en: 'Iced Coffee', km: 'កាហ្វេត្រជាក់' },
-      category: 'Drinks', 
-      price: 4.99, 
-      image: '☕', 
-      description: { en: 'Cold brew with milk', km: 'កាហ្វេត្រជាក់ជាមួយទឹកដោះគោ' }
-    },
-    { 
-      id: 14, 
-      name: { en: 'Margarita', km: 'ម៉ាហ្គារីតា' },
-      category: 'Drinks', 
-      price: 9.99, 
-      image: '🍸', 
-      description: { en: 'Classic tequila cocktail', km: 'ស្រាក្រឡុកតេគីឡា' }
-    },
-    { 
-      id: 15, 
-      name: { en: 'Chocolate Cake', km: 'នំកាកាវ' },
-      category: 'Desserts', 
-      price: 6.99, 
-      image: '🍰', 
-      description: { en: 'Rich chocolate layer cake', km: 'នំស្រទាប់កាកាវ' }
-    },
-    { 
-      id: 16, 
-      name: { en: 'Ice Cream', km: 'ការ៉េម' },
-      category: 'Desserts', 
-      price: 4.99, 
-      image: '🍨', 
-      description: { en: 'Vanilla, chocolate, or strawberry', km: 'វ៉ានីឡា កាកាវ ឬស្ត្របឺរី' }
-    },
-    { 
-      id: 17, 
-      name: { en: 'Cheesecake', km: 'នំឈីស' },
-      category: 'Desserts', 
-      price: 7.99, 
-      image: '🧁', 
-      description: { en: 'New York style cheesecake', km: 'នំឈីសបែបញូវយ៉ក' }
-    },
-    { 
-      id: 18, 
-      name: { en: 'Tiramisu', km: 'ទីរ៉ាមីស៊ូ' },
-      category: 'Desserts', 
-      price: 8.99, 
-      image: '🍮', 
-      description: { en: 'Italian coffee dessert', km: 'បង្អែមកាហ្វេអ៊ីតាលី' }
-    },
-  ];
-
-  const categories = [
-    { key: 'All', label: t.categories.all },
-    { key: 'Food', label: t.categories.food },
-    { key: 'Drinks', label: t.categories.drinks },
-    { key: 'Desserts', label: t.categories.desserts }
-  ];
-
-  const themeColors = {
+  // --- Theme styles ---
+  const themeColors: Record<ThemeColor, ThemeStyle> = {
     orange: {
       gradient: 'from-orange-600 to-red-600',
       bg: 'from-orange-50 to-red-50',
@@ -335,96 +250,270 @@ const SmartMenu = () => {
 
   const theme = themeColors[config.primaryColor];
 
+  // --- Menu items (full list from your original) ---
+  const menuItems: MenuItem[] = [
+    {
+      id: 1,
+      name: { en: 'Classic Burger', km: 'ប័រហ្គឺរបុរាណ' },
+      category: 'Food',
+      price: 8.99,
+      image: '🍔',
+      description: {
+        en: 'Beef patty with cheese, lettuce, tomato',
+        km: 'សាច់គោក្នុងឈីស សាលាដ និងប៉េងប៉ោះ'
+      }
+    },
+    {
+      id: 2,
+      name: { en: 'Margherita Pizza', km: 'ព៊ីហ្សា ម៉ាហ្គារីតា' },
+      category: 'Food',
+      price: 12.99,
+      image: '🍕',
+      description: {
+        en: 'Fresh mozzarella, basil, tomato sauce',
+        km: 'ឈីសម៉ូហ្សារ៉ែឡា ស្លឹកបាស៊ីលីក និងទឹកប៉េងប៉ោះ'
+      }
+    },
+    {
+      id: 3,
+      name: { en: 'Caesar Salad', km: 'សាឡាត់ ស៊ីហ្សា' },
+      category: 'Food',
+      price: 7.99,
+      image: '🥗',
+      description: {
+        en: 'Romaine lettuce, parmesan, croutons',
+        km: 'សាលាដរ៉ូម៉ាំងជាមួយឈីសនិងនំប័ង'
+      }
+    },
+    {
+      id: 4,
+      name: { en: 'Fish & Chips', km: 'ត្រីចៀន និងដំឡូងចៀន' },
+      category: 'Food',
+      price: 14.99,
+      image: '🐟',
+      description: {
+        en: 'Crispy battered fish with fries',
+        km: 'ត្រីចៀនកោរជាមួយដំឡូងចៀន'
+      }
+    },
+    {
+      id: 5,
+      name: { en: 'BBQ Ribs', km: 'ជំនីចង្កា បាបេគ្យូ' },
+      category: 'Food',
+      price: 16.99,
+      image: '🍖',
+      description: {
+        en: 'Slow-cooked ribs with BBQ sauce',
+        km: 'ជំនីចង្កាអាំងជាមួយទឹកជ្រលក់បាបេគ្យូ'
+      }
+    },
+    {
+      id: 6,
+      name: { en: 'Chicken Wings', km: 'ស្លាបមាន់ចៀន' },
+      category: 'Food',
+      price: 9.99,
+      image: '🍗',
+      description: {
+        en: '8 wings with choice of sauce',
+        km: 'ស្លាបមាន់ចៀន ៨ ជាមួយទឹកជ្រលក់'
+      }
+    },
+    {
+      id: 7,
+      name: { en: 'Pasta Carbonara', km: 'ប៉ាស្តា កាបូណារ៉ា' },
+      category: 'Food',
+      price: 11.99,
+      image: '🍝',
+      description: { en: 'Creamy pasta with bacon', km: 'ប៉ាស្តាក្រែមជាមួយសាច់ជ្រូក' }
+    },
+    {
+      id: 8,
+      name: { en: 'Steak', km: 'ស្ទិក' },
+      category: 'Food',
+      price: 22.99,
+      image: '🥩',
+      description: { en: 'Grilled ribeye steak', km: 'សាច់គោអាំង' }
+    },
+    {
+      id: 9,
+      name: { en: 'Draft Beer', km: 'ស្រាបៀរស្រស់' },
+      category: 'Drinks',
+      price: 5.99,
+      image: '🍺',
+      description: { en: 'Local craft beer on tap', km: 'ស្រាបៀរក្នុងស្រុក' }
+    },
+    {
+      id: 10,
+      name: { en: 'House Wine', km: 'ស្រាវ៉ាំង' },
+      category: 'Drinks',
+      price: 7.99,
+      image: '🍷',
+      description: { en: 'Red or white wine', km: 'ស្រាវ៉ាំងក្រហម ឬស' }
+    },
+    {
+      id: 11,
+      name: { en: 'Mojito', km: 'ម៉ូជីតូ' },
+      category: 'Drinks',
+      price: 8.99,
+      image: '🍹',
+      description: { en: 'Rum, mint, lime, soda', km: 'រ៉ូម ស្លឹកគ្រឿងស្អុយ ក្រូចឆ្មារ និងសូដា' }
+    },
+    {
+      id: 12,
+      name: { en: 'Soft Drink', km: 'ភេសជ្ជៈ' },
+      category: 'Drinks',
+      price: 2.99,
+      image: '🥤',
+      description: { en: 'Cola, Sprite, or Fanta', km: 'កូឡា ស្ព្រាយ ឬហ្វេនតា' }
+    },
+    {
+      id: 13,
+      name: { en: 'Iced Coffee', km: 'កាហ្វេត្រជាក់' },
+      category: 'Drinks',
+      price: 4.99,
+      image: '☕',
+      description: { en: 'Cold brew with milk', km: 'កាហ្វេត្រជាក់ជាមួយទឹកដោះគោ' }
+    },
+    {
+      id: 14,
+      name: { en: 'Margarita', km: 'ម៉ាហ្គារីតា' },
+      category: 'Drinks',
+      price: 9.99,
+      image: '🍸',
+      description: { en: 'Classic tequila cocktail', km: 'ស្រាក្រឡុកតេគីឡា' }
+    },
+    {
+      id: 15,
+      name: { en: 'Chocolate Cake', km: 'នំកាកាវ' },
+      category: 'Desserts',
+      price: 6.99,
+      image: '🍰',
+      description: { en: 'Rich chocolate layer cake', km: 'នំស្រទាប់កាកាវ' }
+    },
+    {
+      id: 16,
+      name: { en: 'Ice Cream', km: 'ការ៉េម' },
+      category: 'Desserts',
+      price: 4.99,
+      image: '🍨',
+      description: { en: 'Vanilla, chocolate, or strawberry', km: 'វ៉ានីឡា កាកាវ ឬស្ត្របឺរី' }
+    },
+    {
+      id: 17,
+      name: { en: 'Cheesecake', km: 'នំឈីស' },
+      category: 'Desserts',
+      price: 7.99,
+      image: '🧁',
+      description: { en: 'New York style cheesecake', km: 'នំឈីសបែបញូវយ៉ក' }
+    },
+    {
+      id: 18,
+      name: { en: 'Tiramisu', km: 'ទីរ៉ាមីស៊ូ' },
+      category: 'Desserts',
+      price: 8.99,
+      image: '🍮',
+      description: { en: 'Italian coffee dessert', km: 'បង្អែមកាហ្វេអ៊ីតាលី' }
+    }
+  ];
+
+  const categories: { key: Category; label: string }[] = [
+    { key: 'All', label: t.categories.all },
+    { key: 'Food', label: t.categories.food },
+    { key: 'Drinks', label: t.categories.drinks },
+    { key: 'Desserts', label: t.categories.desserts }
+  ];
+
+  // --- Filters ---
   const filteredItems = useMemo(() => {
     return menuItems.filter(item => {
-      const matchesSearch = item.name[language].toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.description[language].toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+      const matchesSearch =
+        item.name[language].toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description[language]
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === 'All' || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory, language]);
+  }, [menuItems, searchTerm, selectedCategory, language]);
 
-  const addToCart = (item) => {
+  // --- Cart operations ---
+  const addToCart = (item: MenuItem) => {
     setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
+      const existing = prevCart.find(ci => ci.id === item.id);
+      if (existing) {
+        return prevCart.map(ci =>
+          ci.id === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
         );
       }
       return [...prevCart, { ...item, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (itemId) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== itemId));
+  const removeFromCart = (itemId: number) => {
+    setCart(prev => prev.filter(i => i.id !== itemId));
   };
 
-  const updateQuantity = (itemId, change) => {
-    setCart(prevCart => {
-      return prevCart.map(item => {
-        if (item.id === itemId) {
-          const newQuantity = item.quantity + change;
-          return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
-        }
-        return item;
-      }).filter(item => item.quantity > 0);
-    });
+  const updateQuantity = (itemId: number, change: number) => {
+    setCart(prev =>
+      prev
+        .map(i =>
+          i.id === itemId ? { ...i, quantity: Math.max(0, i.quantity + change) } : i
+        )
+        .filter(i => i.quantity > 0)
+    );
   };
 
-  const placeOrder = (tableNumber) => {
+  // --- Orders ---
+  const totalItems = cart.reduce((s, it) => s + it.quantity, 0);
+  const totalPrice = cart.reduce((s, it) => s + it.price * it.quantity, 0);
+
+  const placeOrder = (tableNumber: string) => {
     if (cart.length === 0) return;
-    
-    const newOrder = {
+    const newOrder: Order = {
       id: Date.now(),
-      tableNumber: tableNumber,
+      tableNumber,
       items: [...cart],
       total: totalPrice + config.serviceFee,
-      status: 'new', // new, preparing, ready, completed
+      status: 'new',
       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
     };
-    
+
     setOrders(prev => [newOrder, ...prev]);
     setNotifications(prev => prev + 1);
     setCart([]);
     setShowCart(false);
-    
-    // Show success message
     alert(t.orderPlaced);
   };
 
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(prev => prev.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
+  const updateOrderStatus = (orderId: number, newStatus: OrderStatus) => {
+    setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
     if (newStatus === 'preparing') {
       setNotifications(prev => Math.max(0, prev - 1));
     }
   };
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const getOrdersByStatus = (status: OrderStatus) => orders.filter(o => o.status === status);
 
-  const getCategoryIcon = (category) => {
-    switch(category) {
-      case 'Food': return <UtensilsCrossed className="w-4 h-4" />;
-      case 'Drinks': return <Beer className="w-4 h-4" />;
-      case 'Desserts': return <Cake className="w-4 h-4" />;
-      default: return <Coffee className="w-4 h-4" />;
+  // --- UI helpers ---
+  const getCategoryIcon = (category: Category) => {
+    switch (category) {
+      case 'Food':
+        return <UtensilsCrossed className="w-4 h-4" />;
+      case 'Drinks':
+        return <Beer className="w-4 h-4" />;
+      case 'Desserts':
+        return <Cake className="w-4 h-4" />;
+      default:
+        return <Coffee className="w-4 h-4" />;
     }
   };
 
-  const handleConfigChange = (field, value) => {
+  const handleConfigChange = <K extends keyof Config>(field: K, value: Config[K]) => {
     setConfig(prev => ({ ...prev, [field]: value }));
   };
 
-  const getOrdersByStatus = (status) => {
-    return orders.filter(order => order.status === status);
-  };
-
-  // Customer View
+  // --- Render Customer View ---
   if (viewMode === 'customer') {
     return (
       <div className={`min-h-screen bg-gradient-to-br ${theme.bg} pb-24`}>
@@ -432,49 +521,57 @@ const SmartMenu = () => {
           <div className="px-4 py-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <img 
-                  src={config.logoUrl} 
-                  alt="Logo" 
+                <img
+                  src={config.logoUrl}
+                  alt="Logo"
                   className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                    e.currentTarget.style.display = 'none';
+                    const next = e.currentTarget.nextElementSibling as HTMLElement | null;
+                    if (next) next.style.display = 'flex';
                   }}
                 />
                 <div className="w-12 h-12 rounded-full bg-white/20 items-center justify-center hidden">
                   <UtensilsCrossed className="w-6 h-6" />
                 </div>
-                
+
                 <div>
                   <h1 className="text-xl font-bold">{config.shopName}</h1>
                   <p className={`text-xs ${theme.textLight}`}>{config.shopTagline}</p>
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <button
                   onClick={() => setViewMode('staff')}
                   className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
                   title={t.staffView}
+                  type="button"
                 >
                   <Monitor className="w-5 h-5" />
                 </button>
+
                 <button
                   onClick={() => setLanguage(language === 'en' ? 'km' : 'en')}
                   className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-2 transition-all flex items-center gap-1 text-sm font-semibold"
+                  type="button"
                 >
                   <Languages className="w-4 h-4" />
                   {language === 'en' ? 'ខ្មែរ' : 'EN'}
                 </button>
+
                 <button
                   onClick={() => setShowSettings(true)}
                   className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
+                  type="button"
                 >
                   <Settings className="w-5 h-5" />
                 </button>
+
                 <button
                   onClick={() => setShowCart(true)}
                   className={`relative bg-white ${theme.text} px-4 py-2 rounded-full font-semibold hover:bg-opacity-90 transition-all flex items-center gap-2 shadow-lg`}
+                  type="button"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {totalItems > 0 && (
@@ -492,7 +589,7 @@ const SmartMenu = () => {
                 type="text"
                 placeholder={t.search}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-3 py-2 rounded-lg text-gray-800 focus:outline-none text-sm"
               />
             </div>
@@ -508,6 +605,7 @@ const SmartMenu = () => {
                     ? 'bg-white ' + theme.text + ' shadow-md'
                     : 'bg-white/20 text-white'
                 }`}
+                type="button"
               >
                 {category.key !== 'All' && getCategoryIcon(category.key)}
                 {category.label}
@@ -532,6 +630,7 @@ const SmartMenu = () => {
                   <button
                     onClick={() => addToCart(item)}
                     className={`w-full bg-gradient-to-r ${theme.button} text-white py-2 rounded-lg font-semibold text-sm hover:${theme.buttonHover} transition-all flex items-center justify-center gap-1 shadow-md`}
+                    type="button"
                   >
                     <Plus className="w-4 h-4" />
                     {t.add}
@@ -555,7 +654,7 @@ const SmartMenu = () => {
             <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl flex flex-col">
               <div className={`bg-gradient-to-r ${theme.gradient} text-white p-4 flex items-center justify-between`}>
                 <h2 className="text-xl font-bold">{t.settings}</h2>
-                <button onClick={() => setShowSettings(false)} className="hover:bg-white/20 rounded-full p-2 transition-all">
+                <button onClick={() => setShowSettings(false)} className="hover:bg-white/20 rounded-full p-2 transition-all" type="button">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -565,7 +664,7 @@ const SmartMenu = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">{t.language}</label>
                   <select
                     value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
+                    onChange={e => setLanguage(e.target.value as Language)}
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="en">English</option>
@@ -578,7 +677,7 @@ const SmartMenu = () => {
                   <input
                     type="text"
                     value={config.shopName}
-                    onChange={(e) => handleConfigChange('shopName', e.target.value)}
+                    onChange={e => handleConfigChange('shopName', e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -588,7 +687,7 @@ const SmartMenu = () => {
                   <input
                     type="text"
                     value={config.shopTagline}
-                    onChange={(e) => handleConfigChange('shopTagline', e.target.value)}
+                    onChange={e => handleConfigChange('shopTagline', e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -598,7 +697,7 @@ const SmartMenu = () => {
                   <input
                     type="text"
                     value={config.logoUrl}
-                    onChange={(e) => handleConfigChange('logoUrl', e.target.value)}
+                    onChange={e => handleConfigChange('logoUrl', e.target.value)}
                     placeholder="https://example.com/logo.png"
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
@@ -609,7 +708,7 @@ const SmartMenu = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">{t.shopType}</label>
                   <select
                     value={config.shopType}
-                    onChange={(e) => handleConfigChange('shopType', e.target.value)}
+                    onChange={e => handleConfigChange('shopType', e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="restaurant">{t.restaurant}</option>
@@ -622,15 +721,19 @@ const SmartMenu = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">{t.themeColor}</label>
                   <div className="grid grid-cols-5 gap-2">
-                    {Object.keys(themeColors).map(color => (
-                      <button
-                        key={color}
-                        onClick={() => handleConfigChange('primaryColor', color)}
-                        className={`h-12 rounded-lg bg-gradient-to-r ${themeColors[color].gradient} ${
-                          config.primaryColor === color ? 'ring-4 ring-offset-2 ring-blue-500' : ''
-                        }`}
-                      />
-                    ))}
+                    {Object.keys(themeColors).map(col => {
+                      const colorKey = col as ThemeColor;
+                      return (
+                        <button
+                          key={colorKey}
+                          onClick={() => handleConfigChange('primaryColor', colorKey)}
+                          className={`h-12 rounded-lg bg-gradient-to-r ${themeColors[colorKey].gradient} ${
+                            config.primaryColor === colorKey ? 'ring-4 ring-offset-2 ring-blue-500' : ''
+                          }`}
+                          type="button"
+                        />
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -638,18 +741,19 @@ const SmartMenu = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">{t.serviceFee} ($)</label>
                   <input
                     type="number"
-                    step="0.50"
+                    step="0.5"
                     value={config.serviceFee}
-                    onChange={(e) => handleConfigChange('serviceFee', parseFloat(e.target.value) || 0)}
+                    onChange={e => handleConfigChange('serviceFee', parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="border-t p-4 bg-gray-50">
-                <button 
+                <button
                   onClick={() => setShowSettings(false)}
                   className={`w-full bg-gradient-to-r ${theme.button} text-white py-3 rounded-xl font-bold hover:${theme.buttonHover} transition-all shadow-lg`}
+                  type="button"
                 >
                   {t.saveSettings}
                 </button>
@@ -665,7 +769,7 @@ const SmartMenu = () => {
             <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-white shadow-2xl flex flex-col">
               <div className={`bg-gradient-to-r ${theme.gradient} text-white p-4 flex items-center justify-between`}>
                 <h2 className="text-xl font-bold">{t.yourOrder}</h2>
-                <button onClick={() => setShowCart(false)} className="hover:bg-white/20 rounded-full p-2 transition-all">
+                <button onClick={() => setShowCart(false)} className="hover:bg-white/20 rounded-full p-2 transition-all" type="button">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -678,7 +782,7 @@ const SmartMenu = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {cart.map((item: any) => (
+                    {cart.map(item => (
                       <div key={item.id} className="bg-gray-50 rounded-xl p-3 flex items-center gap-3">
                         <span className="text-3xl">{item.image}</span>
                         <div className="flex-1 min-w-0">
@@ -686,23 +790,14 @@ const SmartMenu = () => {
                           <p className={`${theme.text} font-bold text-sm`}>${item.price.toFixed(2)}</p>
                         </div>
                         <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="bg-white rounded-full p-1 hover:bg-gray-100 shadow"
-                          >
+                          <button onClick={() => updateQuantity(item.id, -1)} className="bg-white rounded-full p-1 hover:bg-gray-100 shadow" type="button">
                             <Minus className="w-4 h-4 text-gray-600" />
                           </button>
                           <span className="w-6 text-center font-semibold text-sm">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="bg-white rounded-full p-1 hover:bg-gray-100 shadow"
-                          >
+                          <button onClick={() => updateQuantity(item.id, 1)} className="bg-white rounded-full p-1 hover:bg-gray-100 shadow" type="button">
                             <Plus className="w-4 h-4 text-gray-600" />
                           </button>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="ml-1 text-red-500 hover:bg-red-50 rounded-full p-1"
-                          >
+                          <button onClick={() => removeFromCart(item.id)} className="ml-1 text-red-500 hover:bg-red-50 rounded-full p-1" type="button">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -721,9 +816,10 @@ const SmartMenu = () => {
                       id="tableNumber"
                       placeholder="1"
                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      min="1"
+                      min={1}
                     />
                   </div>
+
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-gray-600 text-sm">
                       <span>{t.items} ({totalItems})</span>
@@ -738,12 +834,15 @@ const SmartMenu = () => {
                       <span className={theme.text}>${(totalPrice + config.serviceFee).toFixed(2)}</span>
                     </div>
                   </div>
-                  <button 
+
+                  <button
                     onClick={() => {
-                      const tableNum = document.getElementById('tableNumber').value || '1';
+                      const el = document.getElementById('tableNumber') as HTMLInputElement | null;
+                      const tableNum = el?.value || '1';
                       placeOrder(tableNum);
                     }}
                     className={`w-full bg-gradient-to-r ${theme.button} text-white py-3 rounded-xl font-bold hover:${theme.buttonHover} transition-all shadow-lg`}
+                    type="button"
                   >
                     {t.placeOrder}
                   </button>
@@ -756,7 +855,7 @@ const SmartMenu = () => {
     );
   }
 
-  // Staff View
+  // --- Staff View ---
   return (
     <div className={`min-h-screen bg-gradient-to-br ${theme.bg}`}>
       <div className={`bg-gradient-to-r ${theme.gradient} text-white shadow-lg sticky top-0 z-40`}>
@@ -769,22 +868,17 @@ const SmartMenu = () => {
                 <p className={`text-xs ${theme.textLight}`}>{config.shopName}</p>
               </div>
             </div>
-            
+
             <div className="flex gap-2">
-              <button
-                onClick={() => setLanguage(language === 'en' ? 'km' : 'en')}
-                className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-2 transition-all flex items-center gap-1 text-sm font-semibold"
-              >
+              <button onClick={() => setLanguage(language === 'en' ? 'km' : 'en')} className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-2 transition-all flex items-center gap-1 text-sm font-semibold" type="button">
                 <Languages className="w-4 h-4" />
                 {language === 'en' ? 'ខ្មែរ' : 'EN'}
               </button>
-              <button
-                onClick={() => setViewMode('customer')}
-                className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
-                title={t.customerView}
-              >
+
+              <button onClick={() => setViewMode('customer')} className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all" title={t.customerView} type="button">
                 <Monitor className="w-5 h-5" />
               </button>
+
               {notifications > 0 && (
                 <div className="relative">
                   <Bell className="w-5 h-5 mt-2" />
@@ -826,7 +920,7 @@ const SmartMenu = () => {
                           <p className="font-semibold">{order.time}</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
                         {order.items.map(item => (
                           <div key={item.id} className="flex justify-between items-center">
@@ -838,16 +932,13 @@ const SmartMenu = () => {
                           </div>
                         ))}
                       </div>
-                      
+
                       <div className="flex justify-between items-center mb-3">
                         <span className="font-bold text-lg">{t.total}:</span>
                         <span className={`font-bold text-xl ${theme.text}`}>${order.total.toFixed(2)}</span>
                       </div>
-                      
-                      <button
-                        onClick={() => updateOrderStatus(order.id, 'preparing')}
-                        className={`w-full bg-gradient-to-r ${theme.button} text-white py-3 rounded-lg font-bold hover:${theme.buttonHover} transition-all shadow-md`}
-                      >
+
+                      <button onClick={() => updateOrderStatus(order.id, 'preparing')} className={`w-full bg-gradient-to-r ${theme.button} text-white py-3 rounded-lg font-bold hover:${theme.buttonHover} transition-all shadow-md`} type="button">
                         {t.acceptOrder}
                       </button>
                     </div>
@@ -856,7 +947,7 @@ const SmartMenu = () => {
               </div>
             )}
 
-            {/* Preparing Orders */}
+            {/* Preparing */}
             {getOrdersByStatus('preparing').length > 0 && (
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
@@ -876,7 +967,7 @@ const SmartMenu = () => {
                           <p className="font-semibold">{order.time}</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
                         {order.items.map(item => (
                           <div key={item.id} className="flex justify-between items-center">
@@ -888,11 +979,8 @@ const SmartMenu = () => {
                           </div>
                         ))}
                       </div>
-                      
-                      <button
-                        onClick={() => updateOrderStatus(order.id, 'ready')}
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md"
-                      >
+
+                      <button onClick={() => updateOrderStatus(order.id, 'ready')} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md" type="button">
                         {t.markReady}
                       </button>
                     </div>
@@ -901,7 +989,7 @@ const SmartMenu = () => {
               </div>
             )}
 
-            {/* Ready Orders */}
+            {/* Ready */}
             {getOrdersByStatus('ready').length > 0 && (
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
@@ -921,7 +1009,7 @@ const SmartMenu = () => {
                           <p className="font-semibold">{order.time}</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
                         {order.items.map(item => (
                           <div key={item.id} className="flex justify-between items-center">
@@ -933,11 +1021,8 @@ const SmartMenu = () => {
                           </div>
                         ))}
                       </div>
-                      
-                      <button
-                        onClick={() => updateOrderStatus(order.id, 'completed')}
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md"
-                      >
+
+                      <button onClick={() => updateOrderStatus(order.id, 'completed')} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md" type="button">
                         {t.complete}
                       </button>
                     </div>
