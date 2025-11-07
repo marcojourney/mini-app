@@ -19,6 +19,7 @@ import {
   Clock,
   ChefHat
 } from 'lucide-react';
+import Head from 'next/head';
 
 // --- Types ---
 type Language = 'en' | 'km';
@@ -82,7 +83,7 @@ const SmartMenu: React.FC = () => {
   const [notifications, setNotifications] = useState(0);
 
   const [config, setConfig] = useState<Config>({
-    shopName: 'Tasty Bites',
+    shopName: 'Moon 360',
     shopTagline: 'Food & Pub Restaurant',
     shopType: 'restaurant',
     logoUrl:
@@ -856,184 +857,193 @@ const SmartMenu: React.FC = () => {
   }
 
   // --- Staff View ---
-  return (
-    <div className={`min-h-screen bg-gradient-to-br ${theme.bg}`}>
-      <div className={`bg-gradient-to-r ${theme.gradient} text-white shadow-lg sticky top-0 z-40`}>
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <ChefHat className="w-8 h-8" />
-              <div>
-                <h1 className="text-xl font-bold">{t.staffView}</h1>
-                <p className={`text-xs ${theme.textLight}`}>{config.shopName}</p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button onClick={() => setLanguage(language === 'en' ? 'km' : 'en')} className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-2 transition-all flex items-center gap-1 text-sm font-semibold" type="button">
-                <Languages className="w-4 h-4" />
-                {language === 'en' ? 'ខ្មែរ' : 'EN'}
-              </button>
-
-              <button onClick={() => setViewMode('customer')} className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all" title={t.customerView} type="button">
-                <Monitor className="w-5 h-5" />
-              </button>
-
-              {notifications > 0 && (
-                <div className="relative">
-                  <Bell className="w-5 h-5 mt-2" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">
-                    {notifications}
-                  </span>
+  return (<>
+      <Head>
+        <title>{`${config.shopName} | ${config.shopTagline}`}</title>
+        <meta name="description" content={config.shopTagline} />
+        <meta property="og:title" content={`${config.shopName} | ${config.shopTagline}`} />
+        <meta property="og:description" content={config.shopTagline} />
+        <meta property="og:image" content={config.logoUrl} />
+        <meta property="og:type" content="website" />
+      </Head>
+      <div className={`min-h-screen bg-gradient-to-br ${theme.bg}`}>
+        <div className={`bg-gradient-to-r ${theme.gradient} text-white shadow-lg sticky top-0 z-40`}>
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ChefHat className="w-8 h-8" />
+                <div>
+                  <h1 className="text-xl font-bold">{t.staffView}</h1>
+                  <p className={`text-xs ${theme.textLight}`}>{config.shopName}</p>
                 </div>
-              )}
+              </div>
+
+              <div className="flex gap-2">
+                <button onClick={() => setLanguage(language === 'en' ? 'km' : 'en')} className="bg-white/20 hover:bg-white/30 rounded-full px-3 py-2 transition-all flex items-center gap-1 text-sm font-semibold" type="button">
+                  <Languages className="w-4 h-4" />
+                  {language === 'en' ? 'ខ្មែរ' : 'EN'}
+                </button>
+
+                <button onClick={() => setViewMode('customer')} className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all" title={t.customerView} type="button">
+                  <Monitor className="w-5 h-5" />
+                </button>
+
+                {notifications > 0 && (
+                  <div className="relative">
+                    <Bell className="w-5 h-5 mt-2" />
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold">
+                      {notifications}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
+
+        <div className="p-4">
+          {orders.length === 0 ? (
+            <div className="text-center py-20">
+              <ShoppingCart className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-lg">{t.noOrders}</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* New Orders */}
+              {getOrdersByStatus('new').length > 0 && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <Bell className="w-6 h-6 text-red-500" />
+                    {t.newOrders} ({getOrdersByStatus('new').length})
+                  </h2>
+                  <div className="space-y-3">
+                    {getOrdersByStatus('new').map(order => (
+                      <div key={order.id} className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-red-500">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-bold text-lg">{t.table} {order.tableNumber}</h3>
+                            <p className="text-sm text-gray-500">{t.orderId} #{order.id}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">{t.time}</p>
+                            <p className="font-semibold">{order.time}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
+                          {order.items.map(item => (
+                            <div key={item.id} className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{item.image}</span>
+                                <span className="font-medium">{item.name[language]}</span>
+                              </div>
+                              <span className={`font-semibold ${theme.text}`}>x{item.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="font-bold text-lg">{t.total}:</span>
+                          <span className={`font-bold text-xl ${theme.text}`}>${order.total.toFixed(2)}</span>
+                        </div>
+
+                        <button onClick={() => updateOrderStatus(order.id, 'preparing')} className={`w-full bg-gradient-to-r ${theme.button} text-white py-3 rounded-lg font-bold hover:${theme.buttonHover} transition-all shadow-md`} type="button">
+                          {t.acceptOrder}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Preparing */}
+              {getOrdersByStatus('preparing').length > 0 && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <Clock className="w-6 h-6 text-yellow-500" />
+                    {t.preparing} ({getOrdersByStatus('preparing').length})
+                  </h2>
+                  <div className="space-y-3">
+                    {getOrdersByStatus('preparing').map(order => (
+                      <div key={order.id} className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-yellow-500">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-bold text-lg">{t.table} {order.tableNumber}</h3>
+                            <p className="text-sm text-gray-500">{t.orderId} #{order.id}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">{t.time}</p>
+                            <p className="font-semibold">{order.time}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
+                          {order.items.map(item => (
+                            <div key={item.id} className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{item.image}</span>
+                                <span className="font-medium">{item.name[language]}</span>
+                              </div>
+                              <span className={`font-semibold ${theme.text}`}>x{item.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <button onClick={() => updateOrderStatus(order.id, 'ready')} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md" type="button">
+                          {t.markReady}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Ready */}
+              {getOrdersByStatus('ready').length > 0 && (
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                    <CheckCircle className="w-6 h-6 text-green-500" />
+                    {t.ready} ({getOrdersByStatus('ready').length})
+                  </h2>
+                  <div className="space-y-3">
+                    {getOrdersByStatus('ready').map(order => (
+                      <div key={order.id} className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-green-500">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-bold text-lg">{t.table} {order.tableNumber}</h3>
+                            <p className="text-sm text-gray-500">{t.orderId} #{order.id}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">{t.time}</p>
+                            <p className="font-semibold">{order.time}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
+                          {order.items.map(item => (
+                            <div key={item.id} className="flex justify-between items-center">
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">{item.image}</span>
+                                <span className="font-medium">{item.name[language]}</span>
+                              </div>
+                              <span className={`font-semibold ${theme.text}`}>x{item.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <button onClick={() => updateOrderStatus(order.id, 'completed')} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md" type="button">
+                          {t.complete}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="p-4">
-        {orders.length === 0 ? (
-          <div className="text-center py-20">
-            <ShoppingCart className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">{t.noOrders}</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* New Orders */}
-            {getOrdersByStatus('new').length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <Bell className="w-6 h-6 text-red-500" />
-                  {t.newOrders} ({getOrdersByStatus('new').length})
-                </h2>
-                <div className="space-y-3">
-                  {getOrdersByStatus('new').map(order => (
-                    <div key={order.id} className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-red-500">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-bold text-lg">{t.table} {order.tableNumber}</h3>
-                          <p className="text-sm text-gray-500">{t.orderId} #{order.id}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">{t.time}</p>
-                          <p className="font-semibold">{order.time}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
-                        {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl">{item.image}</span>
-                              <span className="font-medium">{item.name[language]}</span>
-                            </div>
-                            <span className={`font-semibold ${theme.text}`}>x{item.quantity}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="font-bold text-lg">{t.total}:</span>
-                        <span className={`font-bold text-xl ${theme.text}`}>${order.total.toFixed(2)}</span>
-                      </div>
-
-                      <button onClick={() => updateOrderStatus(order.id, 'preparing')} className={`w-full bg-gradient-to-r ${theme.button} text-white py-3 rounded-lg font-bold hover:${theme.buttonHover} transition-all shadow-md`} type="button">
-                        {t.acceptOrder}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Preparing */}
-            {getOrdersByStatus('preparing').length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <Clock className="w-6 h-6 text-yellow-500" />
-                  {t.preparing} ({getOrdersByStatus('preparing').length})
-                </h2>
-                <div className="space-y-3">
-                  {getOrdersByStatus('preparing').map(order => (
-                    <div key={order.id} className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-yellow-500">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-bold text-lg">{t.table} {order.tableNumber}</h3>
-                          <p className="text-sm text-gray-500">{t.orderId} #{order.id}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">{t.time}</p>
-                          <p className="font-semibold">{order.time}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
-                        {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl">{item.image}</span>
-                              <span className="font-medium">{item.name[language]}</span>
-                            </div>
-                            <span className={`font-semibold ${theme.text}`}>x{item.quantity}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <button onClick={() => updateOrderStatus(order.id, 'ready')} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md" type="button">
-                        {t.markReady}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Ready */}
-            {getOrdersByStatus('ready').length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <CheckCircle className="w-6 h-6 text-green-500" />
-                  {t.ready} ({getOrdersByStatus('ready').length})
-                </h2>
-                <div className="space-y-3">
-                  {getOrdersByStatus('ready').map(order => (
-                    <div key={order.id} className="bg-white rounded-xl shadow-lg p-4 border-l-4 border-green-500">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-bold text-lg">{t.table} {order.tableNumber}</h3>
-                          <p className="text-sm text-gray-500">{t.orderId} #{order.id}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">{t.time}</p>
-                          <p className="font-semibold">{order.time}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-3 bg-gray-50 rounded-lg p-3">
-                        {order.items.map(item => (
-                          <div key={item.id} className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl">{item.image}</span>
-                              <span className="font-medium">{item.name[language]}</span>
-                            </div>
-                            <span className={`font-semibold ${theme.text}`}>x{item.quantity}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <button onClick={() => updateOrderStatus(order.id, 'completed')} className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md" type="button">
-                        {t.complete}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
 };
 
