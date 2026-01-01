@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ShoppingCart, X, Plus, Minus, UtensilsCrossed, Beer, Coffee, Cake, Settings, Languages, Monitor, Bell, CheckCircle, Clock, ChefHat } from 'lucide-react';
 
 const SmartMenu = () => {
@@ -132,7 +130,7 @@ const SmartMenu = () => {
       name: { en: 'Classic Burger', km: 'ប័រហ្គឺរបុរាណ' },
       category: 'Food', 
       price: 8.99, 
-      image: '🍔', 
+      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop', 
       description: { en: 'Beef patty with cheese, lettuce, tomato', km: 'សាច់គោជាមួយឈីស សាលាដ និងប៉េងប៉ោះ' }
     },
     { 
@@ -140,7 +138,7 @@ const SmartMenu = () => {
       name: { en: 'Margherita Pizza', km: 'ព៊ីហ្សា ម៉ាហ្គារីតា' },
       category: 'Food', 
       price: 12.99, 
-      image: '🍕', 
+      image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=400&fit=crop', 
       description: { en: 'Fresh mozzarella, basil, tomato sauce', km: 'ឈីសម៉ូហ្សារ៉ែឡា ស្លឹកបាស៊ីលីក និងទឹកប៉េងប៉ោះ' }
     },
     { 
@@ -148,7 +146,7 @@ const SmartMenu = () => {
       name: { en: 'Caesar Salad', km: 'សាឡាត់ ស៊ីហ្សា' },
       category: 'Food', 
       price: 7.99, 
-      image: '🥗', 
+      image: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=400&fit=crop', 
       description: { en: 'Romaine lettuce, parmesan, croutons', km: 'សាលាដរ៉ូម៉ាំងជាមួយឈីសនិងនំប័ង' }
     },
     { 
@@ -156,7 +154,7 @@ const SmartMenu = () => {
       name: { en: 'Fish & Chips', km: 'ត្រីចៀន និងដំឡូងចៀន' },
       category: 'Food', 
       price: 14.99, 
-      image: '🐟', 
+      image: 'https://images.unsplash.com/photo-1579208570378-8c970854bc23?w=400&h=400&fit=crop', 
       description: { en: 'Crispy battered fish with fries', km: 'ត្រីចៀនកោរជាមួយដំឡូងចៀន' }
     },
     { 
@@ -164,7 +162,7 @@ const SmartMenu = () => {
       name: { en: 'BBQ Ribs', km: 'ជំនីចង្កា បាបេគ្យូ' },
       category: 'Food', 
       price: 16.99, 
-      image: '🍖', 
+      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=400&fit=crop', 
       description: { en: 'Slow-cooked ribs with BBQ sauce', km: 'ជំនីចង្កាអាំងជាមួយទឹកជ្រលក់បាបេគ្យូ' }
     },
     { 
@@ -172,7 +170,7 @@ const SmartMenu = () => {
       name: { en: 'Chicken Wings', km: 'ស្លាបមាន់ចៀន' },
       category: 'Food', 
       price: 9.99, 
-      image: '🍗', 
+      image: 'https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=400&fit=crop', 
       description: { en: '8 wings with choice of sauce', km: 'ស្លាបមាន់ចៀន ៨ ជាមួយទឹកជ្រលក់' }
     },
     { 
@@ -180,7 +178,7 @@ const SmartMenu = () => {
       name: { en: 'Pasta Carbonara', km: 'ប៉ាស្តាកាបូណារ៉ា' },
       category: 'Food', 
       price: 11.99, 
-      image: '🍝', 
+      image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=400&fit=crop', 
       description: { en: 'Creamy pasta with bacon', km: 'ប៉ាស្តាក្រែមជាមួយសាច់ជ្រូក' }
     },
     { 
@@ -188,7 +186,7 @@ const SmartMenu = () => {
       name: { en: 'Steak', km: 'ស្ទិក' },
       category: 'Food', 
       price: 22.99, 
-      image: '🥩', 
+      image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400&h=400&fit=crop', 
       description: { en: 'Grilled ribeye steak', km: 'សាច់គោអាំង' }
     },
     { 
@@ -196,7 +194,7 @@ const SmartMenu = () => {
       name: { en: 'Draft Beer', km: 'ស្រាបៀរស្រស់' },
       category: 'Drinks', 
       price: 5.99, 
-      image: '🍺', 
+      image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=400&h=400&fit=crop', 
       description: { en: 'Local craft beer on tap', km: 'ស្រាបៀរក្នុងស្រុក' }
     },
     { 
@@ -204,7 +202,7 @@ const SmartMenu = () => {
       name: { en: 'House Wine', km: 'ស្រាវ៉ាំង' },
       category: 'Drinks', 
       price: 7.99, 
-      image: '🍷', 
+      image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop', 
       description: { en: 'Red or white wine', km: 'ស្រាវ៉ាំងក្រហម ឬស' }
     },
     { 
@@ -212,7 +210,7 @@ const SmartMenu = () => {
       name: { en: 'Mojito', km: 'ម៉ូជីតូ' },
       category: 'Drinks', 
       price: 8.99, 
-      image: '🍹', 
+      image: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=400&fit=crop', 
       description: { en: 'Rum, mint, lime, soda', km: 'រ៉ូម ស្លឹកគ្រឿងស្អុយ ក្រូចឆ្មារ និងសូដា' }
     },
     { 
@@ -220,7 +218,7 @@ const SmartMenu = () => {
       name: { en: 'Soft Drink', km: 'ភេសជ្ជៈ' },
       category: 'Drinks', 
       price: 2.99, 
-      image: '🥤', 
+      image: 'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=400&h=400&fit=crop', 
       description: { en: 'Cola, Sprite, or Fanta', km: 'កូឡា ស្ព្រាយ ឬហ្វេនតា' }
     },
     { 
@@ -228,7 +226,7 @@ const SmartMenu = () => {
       name: { en: 'Iced Coffee', km: 'កាហ្វេត្រជាក់' },
       category: 'Drinks', 
       price: 4.99, 
-      image: '☕', 
+      image: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&h=400&fit=crop', 
       description: { en: 'Cold brew with milk', km: 'កាហ្វេត្រជាក់ជាមួយទឹកដោះគោ' }
     },
     { 
@@ -236,7 +234,7 @@ const SmartMenu = () => {
       name: { en: 'Margarita', km: 'ម៉ាហ្គារីតា' },
       category: 'Drinks', 
       price: 9.99, 
-      image: '🍸', 
+      image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=400&h=400&fit=crop', 
       description: { en: 'Classic tequila cocktail', km: 'ស្រាក្រឡុកតេគីឡា' }
     },
     { 
@@ -244,7 +242,7 @@ const SmartMenu = () => {
       name: { en: 'Chocolate Cake', km: 'នំកាកាវ' },
       category: 'Desserts', 
       price: 6.99, 
-      image: '🍰', 
+      image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop', 
       description: { en: 'Rich chocolate layer cake', km: 'នំស្រទាប់កាកាវ' }
     },
     { 
@@ -252,7 +250,7 @@ const SmartMenu = () => {
       name: { en: 'Ice Cream', km: 'ការ៉េម' },
       category: 'Desserts', 
       price: 4.99, 
-      image: '🍨', 
+      image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=400&fit=crop', 
       description: { en: 'Vanilla, chocolate, or strawberry', km: 'វ៉ានីឡា កាកាវ ឬស្ត្របឺរី' }
     },
     { 
@@ -260,7 +258,7 @@ const SmartMenu = () => {
       name: { en: 'Cheesecake', km: 'នំឈីស' },
       category: 'Desserts', 
       price: 7.99, 
-      image: '🧁', 
+      image: 'https://images.unsplash.com/photo-1533134242820-b4f26d46d93e?w=400&h=400&fit=crop', 
       description: { en: 'New York style cheesecake', km: 'នំឈីសបែបញូវយ៉ក' }
     },
     { 
@@ -268,7 +266,7 @@ const SmartMenu = () => {
       name: { en: 'Tiramisu', km: 'ទីរ៉ាមីស៊ូ' },
       category: 'Desserts', 
       price: 8.99, 
-      image: '🍮', 
+      image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=400&fit=crop', 
       description: { en: 'Italian coffee dessert', km: 'បង្អែមកាហ្វេអ៊ីតាលី' }
     },
   ];
@@ -678,7 +676,7 @@ const SmartMenu = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {cart.map((item: any) => (
+                    {cart.map(item => (
                       <div key={item.id} className="bg-gray-50 rounded-xl p-3 flex items-center gap-3">
                         <span className="text-3xl">{item.image}</span>
                         <div className="flex-1 min-w-0">
