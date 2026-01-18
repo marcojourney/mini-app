@@ -3,20 +3,50 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Home, Search, User, Heart, Plus, Minus, MessageCircle, Calendar, Clock, MapPin, CheckCircle } from 'lucide-react';
 
+interface Location {
+  name: string;
+  district: string;
+  address: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  unit: string;
+  image: string;
+  category: string;
+  seller: string;
+  location: string;
+  distance: number;
+  isVerified: boolean;
+  verifiedSince: string | null;
+  harvestProgress: number;
+  daysToHarvest: number;
+  plantedDate: string;
+  expectedHarvest: string;
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
+
+type TabType = 'home' | 'cart' | 'profile';
+
 export default function GroceryApp() {
-  const [activeTab, setActiveTab] = useState('home');
-  const [cart, setCart] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [chatModal, setChatModal] = useState(null);
-  const [bookingModal, setBookingModal] = useState(null);
-  const [locationModal, setLocationModal] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState({
+  const [activeTab, setActiveTab] = useState<TabType>('home');
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [chatModal, setChatModal] = useState<Product | null>(null);
+  const [bookingModal, setBookingModal] = useState<Product | null>(null);
+  const [locationModal, setLocationModal] = useState<boolean>(false);
+  const [selectedLocation, setSelectedLocation] = useState<Location>({
     name: 'Phnom Penh City',
     district: 'Chamkar Mon',
     address: 'Street 240, Phnom Penh'
   });
 
-  const locations = [
+  const locations: Location[] = [
     { name: 'Phnom Penh City', district: 'Chamkar Mon', address: 'Street 240, Phnom Penh' },
     { name: 'Phnom Penh City', district: 'Daun Penh', address: 'Street 106, Phnom Penh' },
     { name: 'Phnom Penh City', district: 'Toul Kork', address: 'Street 289, Phnom Penh' },
@@ -27,7 +57,7 @@ export default function GroceryApp() {
     { name: 'Battambang', district: 'Battambang City', address: 'Street 1, Battambang' },
   ];
 
-  const products = [
+  const products: Product[] = [
     { 
       id: 1, 
       name: 'Fresh Tomatoes', 
@@ -166,7 +196,7 @@ export default function GroceryApp() {
     },
   ];
 
-  const addToCart = (product) => {
+  const addToCart = (product: Product): void => {
     const existing = cart.find(item => item.id === product.id);
     if (existing) {
       setCart(cart.map(item => 
@@ -177,7 +207,7 @@ export default function GroceryApp() {
     }
   };
 
-  const updateQuantity = (productId, change) => {
+  const updateQuantity = (productId: number, change: number): void => {
     setCart(cart.map(item => {
       if (item.id === productId) {
         const newQuantity = item.quantity + change;
@@ -194,13 +224,13 @@ export default function GroceryApp() {
 
   const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  const getProgressColor = (progress) => {
+  const getProgressColor = (progress: number): string => {
     if (progress >= 100) return 'bg-green-500';
     if (progress >= 70) return 'bg-yellow-500';
     return 'bg-orange-500';
   };
 
-  const getStatusBadge = (product) => {
+  const getStatusBadge = (product: Product) => {
     if (product.harvestProgress >= 100) {
       return <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold">Ready Now</span>;
     }
@@ -267,14 +297,12 @@ export default function GroceryApp() {
                   </div>
                   <div className="ml-3 flex-1">
                     <div className="flex items-center space-x-1">
-                      <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <p className="text-xs text-gray-500">{product.seller}</p>
+                      <h3 className="font-semibold text-gray-900">{product.seller}</h3>
                       {product.isVerified && (
-                        <CheckCircle className="w-3.5 h-3.5 text-blue-500 fill-blue-500" />
+                        <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500" />
                       )}
                     </div>
+                    <p className="text-xs text-gray-500">{product.name}</p>
                     <div className="flex items-center space-x-1 mt-1">
                       <MapPin className="w-3 h-3 text-blue-500" />
                       <span className="text-xs text-blue-600">{product.location} • {product.distance} km away</span>
@@ -420,11 +448,19 @@ export default function GroceryApp() {
         {activeTab === 'profile' && (
           <div className="p-4">
             <div className="bg-white rounded-lg p-6 text-center mb-4">
-              <div className="w-20 h-20 bg-green-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full mx-auto mb-3 flex items-center justify-center relative">
                 <User className="w-10 h-10 text-green-600" />
+                {/* Facebook-style Verified Badge */}
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                  <CheckCircle className="w-5 h-5 text-white fill-white" />
+                </div>
               </div>
-              <h2 className="text-xl font-bold">Welcome, Farmer!</h2>
-              <p className="text-gray-500 text-sm">Fresh vegetables at your doorstep</p>
+              <div className="flex items-center justify-center space-x-1">
+                <h2 className="text-xl font-bold">Welcome, Farmer!</h2>
+                <CheckCircle className="w-5 h-5 text-blue-500 fill-blue-500" />
+              </div>
+              <p className="text-gray-500 text-sm mt-1">Fresh vegetables at your doorstep</p>
+              <p className="text-xs text-gray-400 mt-2">✓ Verified Customer since 2024</p>
             </div>
             
             <div className="space-y-2">
@@ -449,8 +485,16 @@ export default function GroceryApp() {
                   {chatModal.image}
                 </div>
                 <div>
-                  <h3 className="font-bold">{chatModal.seller}</h3>
+                  <div className="flex items-center space-x-1">
+                    <h3 className="font-bold">{chatModal.seller}</h3>
+                    {chatModal.isVerified && (
+                      <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500" />
+                    )}
+                  </div>
                   <p className="text-xs text-green-600">Online</p>
+                  {chatModal.isVerified && (
+                    <p className="text-xs text-gray-500">Verified since {chatModal.verifiedSince}</p>
+                  )}
                 </div>
               </div>
               <button onClick={() => setChatModal(null)} className="text-gray-500 text-2xl">×</button>
@@ -489,12 +533,22 @@ export default function GroceryApp() {
             <div className="flex items-center space-x-3 mb-4 p-3 bg-gray-50 rounded-lg">
               <span className="text-4xl">{bookingModal.image}</span>
               <div className="flex-1">
-                <h4 className="font-semibold">{bookingModal.name}</h4>
-                <p className="text-sm text-gray-600">{bookingModal.seller}</p>
+                <div className="flex items-center space-x-1">
+                  <h4 className="font-semibold">{bookingModal.name}</h4>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <p className="text-sm text-gray-600">{bookingModal.seller}</p>
+                  {bookingModal.isVerified && (
+                    <CheckCircle className="w-3.5 h-3.5 text-blue-500 fill-blue-500" />
+                  )}
+                </div>
                 <div className="flex items-center space-x-1 mt-1">
                   <MapPin className="w-3 h-3 text-blue-500" />
                   <span className="text-xs text-blue-600">{bookingModal.location} • {bookingModal.distance} km</span>
                 </div>
+                {bookingModal.isVerified && (
+                  <p className="text-xs text-gray-500 mt-1">✓ Verified Farm since {bookingModal.verifiedSince}</p>
+                )}
               </div>
             </div>
 
