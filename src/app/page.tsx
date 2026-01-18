@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ShoppingCart, X, Plus, Minus, UtensilsCrossed, Beer, Coffee, Cake, Settings, Languages, Monitor, Bell, CheckCircle, Clock, ChefHat } from 'lucide-react';
 
@@ -518,8 +520,12 @@ const SmartMenu = () => {
           <div className="grid grid-cols-2 gap-3">
             {filteredItems.map(item => (
               <div key={item.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden">
-                <div className={`bg-gradient-to-br ${theme.bgLight} to-white p-6 flex items-center justify-center`}>
-                  <span className="text-5xl">{item.image}</span>
+                <div className="relative h-32 overflow-hidden">
+                  <img 
+                    src={item.image} 
+                    alt={item.name[language]}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="p-3">
                   <h3 className="text-sm font-bold text-gray-800 mb-1 line-clamp-1">{item.name[language]}</h3>
